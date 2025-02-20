@@ -2,10 +2,9 @@ package com.example.Integration.test;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.channel.DirectChannel;
+import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.messaging.MessageChannel;
-import org.springframework.messaging.MessageHandler;
 
 @Configuration
 public class IntegrationConfig {
@@ -18,5 +17,14 @@ public class IntegrationConfig {
     @Bean
     public MessageChannel outputChannel() {
         return new DirectChannel();
+    }
+
+    @Bean
+    public IntegrationFlow messageFilterFlow() {
+        return IntegrationFlows.from(inputChannel())
+                .filter(String.class, msg -> msg.contains("Spring"))
+                .channel(outputChannel())
+                .handle(msg -> System.out.println("✅ Allowed Message: " + msg))
+                .get();
     }
 }
